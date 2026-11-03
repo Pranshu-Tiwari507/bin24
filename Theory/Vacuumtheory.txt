@@ -1,0 +1,261 @@
+AI Lab Theory: Assignments 1 to 8
+Aim, objective, theory, important concepts, formulas and algorithm for each assignment.
+Assignment 1: Simple Reflex Agent for the Vacuum Cleaner World
+Aim
+To design and implement a simple reflex agent for the vacuum cleaner world and analyse its rational behaviour in a given environment.
+Objective
+•	To understand the agent, percept, action and environment model.
+•	To write condition-action rules for a two-square world.
+•	To test the agent from all 8 initial configurations.
+•	To decide whether the agent is rational under different performance measures.
+Theory
+An agent is anything that perceives its environment through sensors and acts on it through actuators. The vacuum world has two squares, A and B, each either clean or dirty. The agent senses its location and the dirt status of its square, and can do Suck, Left or Right.
+A simple reflex agent chooses its action from the current percept only, using condition-action rules. It keeps no history. For this world the rules are: if the square is dirty, suck; otherwise move to the other square.
+Whether the agent is rational depends on the performance measure. If it gains one point per clean square per time step and moving is free, the rules are rational. If every move costs a point, the agent is not rational, because it keeps moving after both squares are clean and has no memory to tell it that everything is done. A model-based agent that remembers which squares are clean can fix this by doing nothing once all squares are clean.
+PEAS description: Performance is the number of clean squares over time. Environment is squares A and B. Actuators are suck, left and right. Sensors are a location sensor and a dirt sensor.
+Important Concepts
+•	Agent, percept, percept sequence and agent function
+•	PEAS description
+•	Rational agent
+•	Simple reflex agent versus model-based reflex agent
+•	Environment properties: fully observable, deterministic, static, discrete, single-agent
+•	Limitation: no memory, so the agent can loop forever
+Formula
+•	Agent function: action = f(current percept)
+•	Performance measure = sum of (clean squares at each step) minus (move cost × number of moves)
+•	Initial configurations = 2 locations × 2² dirt patterns = 8
+Algorithm
+1.	Read the percept (location, status).
+2.	If the status is Dirty, do Suck.
+3.	Else if the location is A, do Right.
+4.	Else do Left.
+5.	Update the environment and add to the score.
+6.	Repeat until the step limit is reached, or until all squares are clean if a stopping rule is used.
+Assignment 2: A* Search for the 8-Puzzle
+Aim
+To implement A* search to solve the 8-puzzle problem.
+Objective
+•	To understand informed (heuristic) search.
+•	To design an admissible heuristic for the 8-puzzle.
+•	To check whether a puzzle is solvable before searching.
+•	To obtain the shortest sequence of moves to the goal.
+Theory
+The 8-puzzle is a 3×3 board with tiles 1 to 8 and one blank. A move slides a tile into the blank, which is the same as moving the blank up, down, left or right. The task is to reach a goal arrangement from a given start.
+A* is an informed search that expands the node with the lowest value of f(n) = g(n) + h(n). Here g(n) is the number of moves made so far and h(n) is a heuristic estimate of the moves still needed. Nodes wait in a priority queue (a min-heap), and a closed set records boards that were already expanded.
+The heuristic used is the Manhattan distance. Each move shifts one tile by one square, so a tile needs at least as many moves as its distance from its goal square. The estimate never exceeds the true cost, so it is admissible, and A* returns an optimal solution.
+Only half of all arrangements can reach the standard goal. A puzzle is solvable only if its number of inversions is even, so the check is done first to avoid searching an impossible puzzle.
+Important Concepts
+•	Informed versus uninformed search
+•	Heuristic function, admissible heuristic, consistent heuristic
+•	Open list (priority queue) and closed list
+•	Manhattan distance versus misplaced tiles
+•	Inversion count and solvability
+•	A* compared with greedy best-first search and uniform-cost search
+Formula
+•	f(n) = g(n) + h(n)
+•	Manhattan distance h = sum over all tiles of (|row − goal row| + |col − goal col|), blank excluded
+•	For the standard goal, goal row = (v − 1) // 3 and goal column = (v − 1) % 3
+•	Solvable if the number of inversions is even (for the standard goal)
+•	Total arrangements = 9! = 362,880; reachable arrangements = 181,440
+Algorithm
+1.	If the start is not solvable, stop.
+2.	Put the start in the priority queue with f = h(start).
+3.	Remove the node with the smallest f.
+4.	If it is the goal, return the path.
+5.	If it is already in the closed set, skip it; otherwise add it.
+6.	For every neighbor not in the closed set, set g = g + 1, compute f = g + h and push it with its path.
+7.	If the queue becomes empty, report no solution.
+Assignment 3: Tower of Hanoi by State-Space Search
+Aim
+To implement the Tower of Hanoi puzzle using state-space search.
+Objective
+•	To represent a puzzle as states, actions, initial state and goal.
+•	To generate legal moves automatically.
+•	To find the shortest solution using BFS.
+•	To compare it with the recursive solution.
+Theory
+The puzzle has three rods and n disks of different sizes, all starting on rod A. The goal is to move them all to rod C under three rules: move one disk at a time, move only the top disk of a rod, and never place a larger disk on a smaller one.
+In state-space search, a state is one arrangement of the disks, an action is one legal move, and the set of states with the actions linking them forms a graph. The initial state has all disks on rod A and the goal state has all disks on rod C. Each move costs 1.
+Breadth-first search explores states level by level, so the first time it reaches the goal it has used the fewest moves. The shortest solution has 2^n − 1 moves. A parent record lets the move sequence be rebuilt afterwards.
+The recursive solution does not search. It moves n−1 disks to the spare rod, moves the largest disk, then moves the n−1 disks on top of it.
+Important Concepts
+•	State, action, goal test, path cost
+•	State-space graph
+•	BFS gives the shortest path when all moves cost the same
+•	Recursion and the recurrence relation
+•	Search (general but memory-heavy) versus the problem-specific recursive method
+Formula
+•	Number of states = 3^n
+•	Minimum number of moves = 2^n − 1
+•	Recurrence: M(n) = 2 × M(n−1) + 1, with M(0) = 0
+•	BFS time and space: O(b^d), where b is the branching factor and d is the solution depth
+Algorithm
+1.	Create the start state (all disks on A) and the goal state (all disks on C).
+2.	Put the start in a queue and record it as visited.
+3.	Remove the oldest state from the queue; if it is the goal, stop.
+4.	Generate every legal move: take the top disk of a rod and place it on an empty rod or on a larger disk.
+5.	For every new state not yet visited, record its parent and the move, and add it to the queue.
+6.	Rebuild the path by following parents from the goal back to the start, then reverse it.
+Assignment 4: Local Beam Search for the Traveling Salesman Problem
+Aim
+To implement local beam search for the Traveling Salesman Problem (TSP).
+Objective
+•	To understand local search and the idea of a beam.
+•	To represent a tour as a state and define a successor function.
+•	To see how beam width affects the quality of the answer.
+•	To understand local optima and why the result is not guaranteed optimal.
+Theory
+The TSP asks for the shortest tour that visits every city exactly once and returns to the start. It is NP-hard, so checking every tour is not practical for many cities, and heuristic methods are used.
+Local beam search keeps k states instead of one. In each round it generates all successors of all k states, puts them in a single pool, and keeps only the k best. Because the pool is shared, the search moves toward regions where good successors are found. This differs from running k separate hill climbs.
+In this implementation a state is a permutation of the cities, a successor is made by swapping two cities, and the objective is the total tour length, which is minimised. The search stops when a round gives no improvement. When k = 1 it is hill climbing, and as k grows it approaches breadth-first search.
+The method is neither complete nor optimal. It can get stuck in a local optimum, and all k states can end up in the same region.
+Important Concepts
+•	Local search and objective function
+•	Hill climbing, beam width, successor function
+•	Local optimum
+•	Random initialisation
+•	Trade-off: a wider beam gives better answers but costs more per round
+•	Improvements: stochastic beam search, simulated annealing, 2-opt, genetic algorithms
+Formula
+•	Distance between cities (Euclidean) = sqrt((x1 − x2)² + (y1 − y2)²)
+•	Tour length = sum of distances between consecutive cities + distance from the last city back to the first
+•	Number of distinct tours = (n − 1)! / 2
+•	Successors per tour (swap two cities) = n(n − 1) / 2
+Algorithm
+1.	Generate k random tours (the beam) and note the best.
+2.	Generate all swap-neighbors of every tour in the beam into one pool.
+3.	Sort the pool by tour length and keep the k shortest as the new beam.
+4.	If the best tour of the new beam is shorter than the best so far, save it and go to step 2.
+5.	Otherwise stop and return the best tour and its length.
+Assignment 5: BFS for Planning Problems (8-Puzzle, Blocks World)
+Aim
+To use breadth-first search to solve a planning problem, for example the 8-puzzle.
+Objective
+•	To understand planning as finding a sequence of actions from an initial state to a goal.
+•	To write one general BFS planner that works for different problems.
+•	To define states, actions and a goal test for the 8-puzzle and for Blocks World.
+•	To obtain a plan with the minimum number of actions.
+Theory
+A planning problem has an initial state, a set of actions and a goal condition. The answer is the sequence of actions, the plan, that leads from the start to the goal.
+Breadth-first search explores all states one action away, then two actions away, and so on, using a FIFO queue. The first time it reaches the goal, the plan has the fewest actions, as long as every action has the same cost. A visited set stops repeated states, and a parent record lets the plan be rebuilt backward from the goal.
+The planner itself does not depend on the problem. Only the successor function changes. In the 8-puzzle an action moves the blank up, down, left or right. In Blocks World an action moves the top block of a stack onto the table or onto another stack. In planning terms, each action has a precondition (the block must be clear, the move must stay on the board) and an effect (the new arrangement).
+The drawback of BFS is memory, since it stores every node at the current depth.
+Important Concepts
+•	Planning problem, plan, state, action
+•	Preconditions and effects (STRIPS style)
+•	FIFO queue, visited set, parent pointers
+•	Completeness and optimality of BFS
+•	Blocks World: only a block with nothing on top can be moved
+•	Planning versus plain search: planning describes actions by preconditions and effects
+Formula
+•	Time complexity = O(b^d) and space complexity = O(b^d), where b is the branching factor and d is the depth of the shallowest goal
+•	Number of nodes up to depth d = 1 + b + b^2 + ... + b^d
+•	Plan length = number of actions = number of states on the path minus 1
+Algorithm
+1.	Put the initial state in a queue and in the visited set.
+2.	Remove the first state from the queue.
+3.	If it satisfies the goal test, rebuild and return the plan from the parent links.
+4.	For every action applicable in this state, compute the next state.
+5.	If the next state is not visited, mark it, record its parent and action, and add it to the queue.
+6.	If the queue becomes empty, report that no plan exists.
+Assignment 6: DFS for the Water Jug Problem
+Aim
+To implement depth-first search for the water jug problem.
+Objective
+•	To model a puzzle as a state-space problem.
+•	To implement DFS with an explicit stack.
+•	To avoid infinite loops with a visited set.
+•	To compare DFS with BFS.
+Theory
+There are two jugs, of 4 and 3 litres, with no markings, and an unlimited water supply. The task is to measure exactly 2 litres in a jug. A state is a pair (x, y), the litres in the 4-litre and 3-litre jugs. The initial state is (0, 0).
+The operators are: fill either jug, empty either jug, and pour from one jug into the other. Pouring stops when the source is empty or the target is full, so the amount poured is the smaller of the water available and the space left in the target.
+Depth-first search follows one path as deep as possible before going back. It uses a stack (last in, first out). Since fill and empty undo each other, a visited set is essential, otherwise the search could loop forever. DFS needs little memory, but it is not guaranteed to find the shortest solution.
+Any amount from 1 to 4 litres can be measured here, because gcd(4, 3) = 1.
+Important Concepts
+•	State space and operators
+•	Stack (LIFO) and depth-first search
+•	Visited set, to prevent cycles
+•	Backtracking when a path is a dead end
+•	Not optimal, but memory-efficient
+•	Reachability condition using the gcd
+Formula
+•	State: (x, y) with 0 <= x <= 4 and 0 <= y <= 3
+•	Pour from the 4L jug into the 3L jug: pour = min(x, 3 - y); new state = (x - pour, y + pour)
+•	Pour from the 3L jug into the 4L jug: pour = min(y, 4 - x); new state = (x + pour, y - pour)
+•	Maximum number of states = 5 x 4 = 20
+•	Time complexity O(b^m); space complexity O(b x m), where m is the maximum depth
+•	A target is measurable if it is a multiple of gcd(capacities) and not larger than the biggest jug
+Algorithm
+1.	Push the initial state (0, 0) on the stack and mark it visited.
+2.	Pop the top state.
+3.	If it is a goal state, (2, 0) or (0, 2), rebuild and return the path.
+4.	Generate all successors using the six operators.
+5.	Push each unvisited successor, mark it visited and record its parent and action. Pushing them in reverse order makes the first operator be tried first.
+6.	If the stack becomes empty, report that no solution exists.
+Assignment 7: Backtracking Search for the 8-Queens Problem
+Aim
+To implement backtracking search to solve the 8-Queens constraint satisfaction problem.
+Objective
+•	To understand constraint satisfaction problems (CSPs).
+•	To formulate 8-Queens with variables, domains and constraints.
+•	To implement backtracking with constraint checking.
+•	To see how pruning reduces the search compared with brute force.
+Theory
+The 8-Queens problem asks for 8 queens on an 8x8 board so that no two attack each other. A queen attacks along its row, column and both diagonals.
+As a CSP, the variables are the queens, one per row, which removes the row constraint. The domain of each variable is the columns 1 to 8. The constraints are that no two queens share a column or a diagonal.
+Backtracking is depth-first search over partial assignments. It places a queen in the current row in each column in turn, checks that the square is safe, and moves on to the next row. If no column in a row is safe, it returns to the previous row, removes that queen and tries its next column. Because a partial placement is abandoned as soon as it breaks a constraint, the search is far smaller than brute force.
+The puzzle has 92 solutions, or 12 if rotations and reflections are counted as the same. The code stops at the first one it finds, which is columns 1, 5, 8, 6, 3, 7, 2, 4.
+Important Concepts
+•	CSP: variables, domains, constraints
+•	Partial and complete assignment, consistent assignment
+•	Backtracking and pruning
+•	Recursion and undoing a choice
+•	Improvements: forward checking, minimum remaining values, arc consistency, min-conflicts
+•	No solution exists for N = 2 and N = 3
+Formula
+•	Same column: col1 = col2
+•	Same diagonal: |row1 - row2| = |col1 - col2|
+•	Brute force placements: C(64, 8) = about 4.4 billion
+•	One queen per row: 8^8 = about 16.7 million
+•	One queen per row and column: 8! = 40,320
+•	Number of solutions for N = 8: 92
+Algorithm
+1.	Start at row 1 with an empty solution.
+2.	If the row number is greater than N, all queens are placed, so return success.
+3.	For each column from 1 to N, check that no earlier queen shares the column or a diagonal.
+4.	If the square is safe, place the queen and recurse on the next row.
+5.	If the recursion succeeds, return success.
+6.	Otherwise remove the queen (backtrack) and try the next column.
+7.	If no column works, return failure to the previous row.
+Assignment 8: Rule-Based Chatbot Using Pattern Matching
+Aim
+To develop a simple chatbot using predefined rules and pattern matching.
+Objective
+•	To understand how rule-based dialogue systems work.
+•	To match user input against patterns with regular expressions.
+•	To design rules, a default reply and an exit condition.
+•	To see the limits of rule-based chatbots.
+Theory
+A rule-based chatbot has no learning or real understanding. It holds a list of rules, and each rule pairs one or more patterns with a response. The program checks the user's message against the rules in order and returns the response of the first rule that matches. If nothing matches, it gives a default reply. Words such as bye, exit and quit end the conversation.
+The input is converted to lowercase and stripped of extra spaces, so matching ignores case. Patterns are matched with regular expressions using word boundaries, so that a pattern such as hi matches only the separate word and not the letters inside this or thing.
+Rule order matters, because the first match wins. The chatbot has no memory of earlier messages and cannot handle typing mistakes or reworded questions. This is why modern chatbots use machine learning. ELIZA, from the 1960s, was an early chatbot built on the same keyword-matching idea.
+Important Concepts
+•	Rule-based system and pattern matching
+•	Regular expressions, word boundary, escaping
+•	Text normalisation: lowercase and strip
+•	First-match-wins rule ordering
+•	Default response and exit handling
+•	Limits: no context, no learning, manual rule writing
+•	Rule-based versus machine-learning chatbots
+Formula
+•	Whole-word pattern: a word boundary, then the pattern, then a word boundary (in Python, a raw string r with backslash-b on each side)
+•	Response = response of the first rule i such that any pattern in rule i matches the text
+•	Rule lookup cost = O(R x P x L) for R rules, P patterns per rule and an input of length L
+Algorithm
+1.	Print a welcome message.
+2.	Read the user's input.
+3.	Convert it to lowercase and strip spaces.
+4.	If it matches an exit pattern, print the goodbye message and stop.
+5.	Go through the rules in order; for the first rule with a matching pattern, print its response.
+6.	If no rule matches, print the default response.
+7.	Go back to step 2.
